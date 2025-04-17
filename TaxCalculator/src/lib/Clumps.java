@@ -1,7 +1,7 @@
 package lib;
 
 import java.time.LocalDate;
-import java.time.Month;
+import java.time.Period;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,13 +13,12 @@ public class Employee {
     private String idNumber;
     private String address;
 
-    private int yearJoined;
-    private int monthJoined;
-    private int dayJoined;
+    // Mengganti field tanggal individual dengan LocalDate
+    private LocalDate joinDate;
     private int monthWorkingInYear;
 
     private boolean isForeigner;
-    private Gender gender; // Diubah dari boolean menjadi enum
+    private Gender gender;
 
     private int monthlySalary;
     private int otherMonthlyIncome;
@@ -38,9 +37,7 @@ public class Employee {
         this.lastName = lastName;
         this.idNumber = idNumber;
         this.address = address;
-        this.yearJoined = yearJoined;
-        this.monthJoined = monthJoined;
-        this.dayJoined = dayJoined;
+        this.joinDate = LocalDate.of(yearJoined, monthJoined, dayJoined);
         this.isForeigner = isForeigner;
         this.gender = gender;
 
@@ -48,12 +45,26 @@ public class Employee {
         childIdNumbers = new LinkedList<String>();
     }
 
+    // Metode lainnya
     /**
-     * Mengatur gaji bulanan berdasarkan grade karyawan Grade 1: 3.000.000 per
-     * bulan Grade 2: 5.000.000 per bulan Grade 3: 7.000.000 per bulan Karyawan
-     * asing menerima kenaikan gaji 50%
+     * Menghitung berapa bulan karyawan telah bekerja dalam tahun berjalan
      */
-    public void setMonthlySalary(int grade) {
+    private int calculateMonthsWorkedInYear() {
+        LocalDate now = LocalDate.now();
 
+        if (now.getYear() == joinDate.getYear()) {
+            return now.getMonthValue() - joinDate.getMonthValue();
+        } else {
+            return 12;
+        }
+    }
+
+    public int getAnnualIncomeTax() {
+        monthWorkingInYear = calculateMonthsWorkedInYear();
+
+        boolean hasSpouse = !spouseIdNumber.equals("");
+        int numberOfChildren = childIdNumbers.size();
+
+        return TaxFunction.calculateTax(monthlySalary, otherMonthlyIncome, monthWorkingInYear, annualDeductible, hasSpouse, numberOfChildren);
     }
 }
